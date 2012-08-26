@@ -6,4 +6,5 @@ foreach my $remote ( `git remote` )
 	{
 	my $cmd = "git push $remote";
 	`$cmd`;
+	`$cmd --tags`;
 	}
