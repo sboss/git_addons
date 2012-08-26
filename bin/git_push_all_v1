@@ -1,0 +1,9 @@
+#!perl
+#
+$|=1;
+#
+foreach my $remote ( `git remote` )
+	{
+	my $cmd = "git push $remote";
+	`$cmd`;
+	}
