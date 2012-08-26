@@ -1,0 +1,21 @@
+#!perl
+#
+$|=1;
+#
+use Socket;
+#
+#
+if ( ( inet_ntoa( inet_aton( "time.apple.com") ) eq inet_ntoa( inet_aton( "0.us.pool.ntp.org") ) ) || ( inet_ntoa( inet_aton( "time.apple.com") ) eq inet_ntoa( inet_aton( "2.us.pool.ntp.org") ) ) )
+	{
+	print "\n\n**                                                                      **\n**                                                                      **\n**                    NETWORK ISSUES.  NO REPLICATION.                  **\n**                                                                      **\n**                                                                      **\n\n\n";
+	}
+else
+	{
+	foreach my $remote ( `git remote` )
+		{
+		my $cmd  = "git push $remote";
+		my $cmdT = "git push --tags $remote";
+		`$cmd`;
+		`$cmdT`;
+		}		
+	}
