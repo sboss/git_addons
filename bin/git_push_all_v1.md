@@ -1,4 +1,4 @@
-# git\_push\_all\_v1.md
+# git\_push\_all\_v1
 
 ## requirements
 
