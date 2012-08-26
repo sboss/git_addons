@@ -1,3 +1,14 @@
 #!/bin/sh
-
-exec perl .git/bin/git_push_all_v1 &
+#
+# only uncomment one of the following "exec" lines. doing more than one
+#   could cause problems.
+#
+#
+# v1 has zero checks, works best on a computer that always has network 
+#   connection(s) to the remote repos.
+#exec perl .git/bin/git_push_all_v1 &
+#
+# v2 has minimal checks only, works best on a computer that always has 
+#   network connection(s) to the remote repos OR one that has good DNS
+#   lookups (not relying on the /etc/hosts file).
+exec perl .git/bin/git_push_all_v2 &
