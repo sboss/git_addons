@@ -2,7 +2,17 @@
 #
 $|=1;
 #
+#
+my $GOT_NETPING;
 use Socket;
+eval
+	{
+	require Net::Ping;
+	};
+unless( $@ )
+	{
+	$GOT_NETPING=1;
+	}
 #
 #
 if ( ( inet_ntoa( inet_aton( "time.apple.com") ) eq inet_ntoa( inet_aton( "0.us.pool.ntp.org") ) ) || ( inet_ntoa( inet_aton( "time.apple.com") ) eq inet_ntoa( inet_aton( "2.us.pool.ntp.org") ) ) )
@@ -13,9 +23,79 @@ else
 	{
 	foreach my $remote ( `git remote` )
 		{
-		my $cmd  = "git push $remote";
-		my $cmdT = "git push --tags $remote";
-		`$cmd`;
-		`$cmdT`;
+		my $VALID=1;
+		if ( $GOT_NETPING )
+			{
+			#print "GOT_NETPING\n";
+			my $a;
+			my $proto="http";
+			my $cmd = "git remote show $remote";
+			open( PFH, "$cmd |" );
+			foreach my $line ( <PFH> )
+				{
+				next if !grep(/^  Push  URL:/,$line );
+				$a = substr( $line,13 );
+				if ( grep( /^ssh:\/\//i,$a) )
+					{
+					$a = substr( $a,6 );
+					$a = substr( $a,0,index( $a,"/", ) );
+					if ( grep( /\@/,$a ) ) { $a = substr( $a,index( $a,"@" )+1 ); }
+					if ( grep( /:/,$a ) ) { $a = substr( $a,0,index( $a,":" ) ); }
+					$proto="ssh";					
+					}
+				elsif ( grep( /^http:\/\//i,$a) )
+					{
+					$a = substr( $a,7 );
+					$a = substr( $a,0,index( $a,"/", ) );
+					if ( grep( /\@/,$a ) ) { $a = substr( $a,index( $a,"@" )+1 ); }
+					if ( grep( /:/,$a ) ) { $a = substr( $a,0,index( $a,":" ) ); }
+					$proto="http";
+					}
+				elsif ( grep( /^https:\/\//i,$a) )
+					{
+					$a = substr( $a,8 );
+					$a = substr( $a,0,index( $a,"/", ) );
+					if ( grep( /\@/,$a ) ) { $a = substr( $a,index( $a,"@" )+1 ); }
+					if ( grep( /:/,$a ) ) { $a = substr( $a,0,index( $a,":" ) ); }
+					$proto="https";
+					}
+				elsif ( grep( /^git:\/\//i,$a) )
+					{
+					$a = substr( $a,6 );
+					$a = substr( $a,0,index( $a,"/", ) );
+					if ( grep( /\@/,$a ) ) { $a = substr( $a,index( $a,"@" )+1 ); }
+					if ( grep( /:/,$a ) ) { $a = substr( $a,0,index( $a,":" ) ); }
+					$proto="git";
+					}
+				elsif ( grep( /^git\@github.com:/i,$a) )
+					{
+					$a = "github.com";
+					$proto="git";
+					}
+				print "\n*$a*\n";
+				}
+			close PFH;
+
+			$p = Net::Ping->new( "tcp", 2 );
+			$p->port_number(getservbyname( $proto, "tcp" ) );
+			while ( $stop_time > time() )
+				{
+			     $VALID=0 unless $p->ping( $a );
+			    sleep( 30 );
+				}
+			undef( $p );
+			
+			}
+		if ( $VALID )
+			{
+			my $cmd  = "git push $remote";
+			my $cmdT = "git push --tags $remote";
+			`$cmd`;
+			`$cmdT`;
+			}
+		else
+			{
+			print "\n\n**                                                                      **\n**                                                                      **\n**                            NOT PINGABLE                              **\n**                                                                      **\n**                                                                      **\n\n\n";
+			}
 		}		
 	}
