@@ -1,0 +1,29 @@
+#!perl
+#
+$|=1;
+#
+my $GIT = '/usr/bin/git';
+#
+#
+# MAIN
+open( PFH, "$GIT branch -a |");
+foreach my $line ( <PFH> )
+	{
+	chomp $line;
+	next if grep(/^\*/, $line);
+	next if grep(/ -> /,$line);
+	while( substr( $line,0,1) eq " " ) { $line = substr( $line,1); }
+	my $CMD = "$GIT log --abbrev-commit --date=relative -1 " . $line;
+	open( SPFH, "$CMD |" );
+	foreach my $sline ( <SPFH> )
+		{
+		next if !grep(/^Date: /,$sline);
+		chomp $sline;
+		$sline =~ s#^Date: ##;
+		while( substr( $sline,0,1) eq " " ) { $sline = substr( $sline,1); }
+		printf "%-36s last activity was \033[1;31m%s\033[0m\n", $line, $sline;
+		}
+	close SPFH;
+	#print $CMD . "\n";
+	}
+close PFH;

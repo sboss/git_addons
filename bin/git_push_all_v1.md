@@ -2,7 +2,7 @@
 
 ## requirements
 
-* perl (any modern version will surfice).
+* perl (any modern version will suffice).
 
 ## notes
 
