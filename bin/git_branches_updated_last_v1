@@ -4,6 +4,17 @@ $|=1;
 #
 my $GIT = '/usr/bin/git';
 #
+my $GOT_TERMANSICOLOR=0;
+eval
+	{
+ 	require Term::ANSIColor;
+ 	Term::ANSIColor->import();
+	};
+
+unless($@)
+	{
+ 	$GOT_TERMANSICOLOR=1;
+	}
 #
 # MAIN
 open( PFH, "$GIT branch -a |");
@@ -21,7 +32,17 @@ foreach my $line ( <PFH> )
 		chomp $sline;
 		$sline =~ s#^Date: ##;
 		while( substr( $sline,0,1) eq " " ) { $sline = substr( $sline,1); }
-		printf "%-36s last activity was \033[1;31m%s\033[0m\n", $line, $sline;
+		if ( $GOT_TERMANSICOLOR )
+			{
+			my $tmpa = sprintf "%-36s", $line;
+			print "$tmpa last activity was ";
+			print colored( $sline,"red" );
+			print "\n";				
+			}
+		else
+			{
+			printf "%-36s last activity was %s\n", $line, $sline;
+			}
 		}
 	close SPFH;
 	#print $CMD . "\n";
