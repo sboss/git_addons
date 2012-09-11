@@ -1,0 +1,68 @@
+#!perl
+#
+$|=1;
+#
+#
+my $GOT_NETPING;
+use Socket;
+use Term::ANSIColor;
+use Git::Class;
+eval
+	{
+	require Net::Ping;
+	};
+unless( $@ )
+	{
+	$GOT_NETPING=1;
+	}
+#
+#
+if ( ( inet_ntoa( inet_aton( "time.apple.com") ) eq inet_ntoa( inet_aton( "0.us.pool.ntp.org") ) ) || ( inet_ntoa( inet_aton( "time.apple.com") ) eq inet_ntoa( inet_aton( "2.us.pool.ntp.org") ) ) )
+	{
+	print "\n\n**                                                                      **\n**                                                                      **\n**                    NETWORK ISSUES.  NO REPLICATION.                  **\n**                                                                      **\n**                                                                      **\n\n\n";
+	}
+else
+	{
+	my $UNTRACKED=0;
+	my $git= Git::Class::Cmd->new();
+	foreach my $line ( $git->status )
+		{
+		chomp $line;
+		my $ll = substr( $line,0,1 );
+		my $lr = substr( $line,1 );
+		if ( grep(/^# Untracked files:/,$line ) ) 
+			{ 
+			$UNTRACKED=1; 
+			print colored( "$line\n", "red" ); 
+			}
+		elsif ( grep(/^# On branch/,$line ) ) 
+			{
+			$lr =~ s# On branch ##;
+			print colored( "$ll", "green" ); 
+			print colored( " On branch ", "white" );
+			print colored( "$lr\n","green");
+			}
+		elsif ( grep(/use "git add"/,$line ) ) 
+			{ 
+			$UNTRACKED=0;
+			print colored( "$line\n", "bold white" ); 
+			}
+
+		elsif ( $UNTRACKED ) 
+			{
+			if ( grep( /use "git add/,$line ) ) 
+				{
+				print colored( "$ll", "red" ); 
+				print colored( "$lr\n","white"); 
+				}
+			elsif ( length( $line ) > 2 ) 
+				{ 
+				print colored( "$ll", "red" ); 
+				print colored( "$lr\n","bold red");
+				}
+			else { print colored( "$ll\n", "red" ); }
+			}
+		else { print $line . "\n"; }
+		
+		}
+	}
