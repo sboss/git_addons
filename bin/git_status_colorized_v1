@@ -30,7 +30,13 @@ foreach my $line ( $git->status )
 		$UNTRACKED=1; 
 		print colored( "$line\n", "red" ); 
 		}
-		elsif ( grep(/^# On branch/,$line ) ) 
+	elsif ( grep(/^nothing to commit/,$line) )
+		{
+		($ll,$lr) = split(/ \(/,$line);
+		print colored( $ll, "green" );
+		print colored( " ($lr\n", "white" );
+		}
+	elsif ( grep(/^# On branch/,$line ) ) 
 		{
 		$lr =~ s# On branch ##;
 		print colored( "$ll", "green" ); 
