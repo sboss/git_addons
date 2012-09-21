@@ -32,4 +32,4 @@ these files copy to ${gitrepo}/.git/bin.  the bin directory is not part of the g
 this script was designed to put in the bin directory, its contents, and put in the extras to the hooks directory.  very little error checking if any at all.  the script may/maynot work on other UN*X based systems (like linux).  it will not work at all on Windows.
 
 ## contributors
-[sboss]( https://github.com/sboss "sboss" )
+[sboss]( https://github.com/sboss "sboss" )  [![endorse](http://api.coderwall.com/sboss/endorsecount.png)](http://coderwall.com/sboss)
